@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        ul { list-style: none; }
+    </style>
+    <title>My Chat Room</title>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <form if="chatbox">
+        <textarea id="message"></textarea>
+        <input type="submit" value="Send" id="submit"></input>
+    </form>
+
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+    <script>
+        $(function(){
+            var socket = null;
+            var msgbox = $("#message");
+            var messages = $("#messages");
+            $("#submit").click(function(event){
+                event.preventDefault();
+                if(!msgbox.val()){
+                    return false;
+                }
+                if(!socket){
+                    alert("Error:There is no connection");
+                    return false
+                }
+                socket.send(msgbox.val());
+                msgbox.val("")
+                return false;
+            });
+            if(!window["WebSocket"]){
+                alert("Error: Your browser doesn't support web sockets");
+            }else{
+                socket = new WebSocket("ws://localhost:3000/room");
+                socket.onclose = function(){
+                    alert("Connection has been closed");
+                };
+                socket.onmessage= function(e){
+                    var d = new Date;
+                    messages.append(($("<li>").text(d.toUTCString() + " Anonymous: "+ e.data)));
+                };
+            }
+        })
+
+    </script>
+</body>
+</html>
